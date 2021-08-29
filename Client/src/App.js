@@ -1,5 +1,4 @@
 import './App.css';
-
 import LoginPage from './pages/LoginPage'
 import ChatRoom from './pages/ChatRoom'
 import ClearChat from './pages/ClearChat'
@@ -9,7 +8,6 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
-
 
 function App() {
   return (

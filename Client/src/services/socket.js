@@ -1,8 +1,7 @@
-import 'dotenv/config';
+import config from '../config/index';
 import socketIOClient from "socket.io-client";
 
-const serverEndpoint = process.env.SERVER_NODE_URL;
-// const serverEndpoint = "http://localhost:4000";
+const serverEndpoint = config.server_node.url;
 
 export const socket = socketIOClient(serverEndpoint, {
   transports: ['websocket']

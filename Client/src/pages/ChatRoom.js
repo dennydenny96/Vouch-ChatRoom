@@ -98,7 +98,6 @@ class ChatRoom extends Component {
 		let roomIdVal = localStorage.getItem('roomId')
 		let usernameVal = localStorage.getItem('username')
 
-		console.log(userIDVal)
 		//If user does not have a userid and username saved in local storage, create them for them
 		if (!userIDVal) {
 			socket.on("SetUserData", userData => {
@@ -120,6 +119,7 @@ class ChatRoom extends Component {
 		}
 		else {
 			//If user already has userid and username, notify server to allow them to join chat
+			console.log(roomIdVal)
 			this.setState({ currentUsername: usernameVal, currentUserID: userIDVal })
 			socket.emit("UserEnteredRoom", { roomId: roomIdVal, username: usernameVal })
 		}

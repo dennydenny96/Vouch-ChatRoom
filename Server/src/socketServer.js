@@ -4,7 +4,6 @@ let chatRoomData = []
 let connectedClients = {}
 
 export default async ({ io }) => {
-
   io.on('connection', (client) => {
     console.log('A client connected');
 
