@@ -21,12 +21,11 @@ export default async ({ io }) => {
       const { user, token } = await authService.login(userData);
 
       console.log(user, token);
-      // roomService.findRoomByRoomId();
-
+      
       // chatRoomData.push(enteredRoomMessage)
       // sendUpdatedChatRoomData(client)
       // connectedClients[client.id] = userData
-
+      client.emit("Authorized", {user, token})
     })
 
     client.on("CreateUserData", () => {

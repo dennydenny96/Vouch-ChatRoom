@@ -90,10 +90,6 @@ class ChatRoom extends Component {
 	}
 
 	componentDidMount() {
-
-		localStorage.setItem('userID', '1')
-		localStorage.setItem('roomId', '1')
-		localStorage.setItem('username', 'Denny')
 		let userIDVal = localStorage.getItem('userID')
 		let roomIdVal = localStorage.getItem('roomId')
 		let usernameVal = localStorage.getItem('username')
@@ -137,7 +133,6 @@ class ChatRoom extends Component {
 
 
 	setMessage(message) {
-		//Set Message being typed in input field
 		this.setState({ message: message })
 	}
 

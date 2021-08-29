@@ -8,6 +8,7 @@ import { Row, Container } from 'react-bootstrap';
 
 //Add socket import here
 import { socket } from '../services/socket'
+import { Redirect, Link } from 'react-router-dom';
 
 let styles = {
   chatContainer: {
@@ -45,7 +46,7 @@ let styles = {
     borderTopRightRadius: 8,
     marginBottom: 8
   },
-  messageInputSection: {
+  InputSection: {
     backgroundColor: '#F6F6F6',
     marginBottom: '5px',
     marginTop: '5px',
@@ -60,68 +61,26 @@ let styles = {
     width: '45%',
     borderRadius: '100px'
   },
-  messageTextField: {
+  TextField: {
     flex: 1
-  },
-  messageSubmitButton: {
-    flex: 0
   }
-
 }
 
-const autoScrollOffset = 100 //offset value that allows screen to auto scroll when you are not exactly at bottom of chat window
-
 class LoginPage extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
-      currentUsername: "",
+      username: "",
       currentUserID: 0,
-      currentRoomId: "",
+      roomId: "",
       initialLoad: true,
+      redirect: null
     };
     //Create Ref for managing "auto-scroll"
     this.messagesEndRef = React.createRef()
   }
 
   componentDidMount() {
-
-    localStorage.setItem('userID', '1')
-    localStorage.setItem('roomId', '1')
-    localStorage.setItem('username', 'Denny')
-    let userIDVal = localStorage.getItem('userID')
-    let roomIdVal = localStorage.getItem('roomId')
-    let usernameVal = localStorage.getItem('username')
-
-    //If user does not have a userid and username saved in local storage, create them for them
-    if (!userIDVal) {
-      socket.on("SetUserData", userData => {
-        //When user creation on server is complete, retrieve and save data to local storage
-        localStorage.setItem('userID', userData.userID)
-        localStorage.setItem('roomId', userData.roomId)
-        localStorage.setItem('username', userData.username)
-        console.log(userData)
-
-        this.setState({ currentUsername: userData.username, roomId: userData.roomId })
-
-        //Notify Socket server is not ready to chat
-        socket.emit("UserEnteredRoom", userData)
-      });
-
-      //Send Socket command to create user info for current user
-      socket.emit("CreateUserData")
-
-    }
-    else {
-      //If user already has userid and username, notify server to allow them to join chat
-      this.setState({ currentUsername: usernameVal, currentUserID: userIDVal })
-      socket.emit("UserEnteredRoom", { roomId: roomIdVal, username: usernameVal })
-    }
-
-    socket.on("RetrieveChatRoomData", (chatRoomData) => {
-      this.setState({ chatRoomData: chatRoomData }, () => this.shouldScrollToBottom())
-    })
 
   }
 
@@ -130,33 +89,29 @@ class LoginPage extends Component {
     socket.off("SetUserData")
   }
 
-  setLogin(message) {
-    //Set Message being typed in input field
-    this.setState({ message: message })
+  setUsername(username) {
+    this.setState({ username: username })
   }
 
-  shouldScrollToBottom() {
-    //If user is near the bottom of the chat, automatically navigate them to bottom when new chat message/notification appears
-    if (this.messagesEndRef.current.scrollHeight - this.messagesEndRef.current.scrollTop < this.messagesEndRef.current.offsetHeight + autoScrollOffset) {
-      this.scrollToBottom()
-    }
+  setRoom(roomId) {
+    this.setState({ roomId: roomId })
+  }
 
-    //Navigate to end of chat when entering chat the first time
-    if (this.state.initialLoad) {
-      this.scrollToBottom()
-      this.setState({ initialLoad: false })
+  renderRedirect = () => {
+    if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />
     }
   }
 
-  scrollToBottom() {
-    //Scrolls user to end of chat message window
-    this.messagesEndRef.current.scrollTop = this.messagesEndRef.current.scrollHeight
+  enterRoom() {
+    socket.emit("UserEnteredRoom", this.state)
+    socket.on("Authorized", (data) => {
+      console.log(data)
+      this.setState({ redirect: '/chatRoom' })
+    })
   }
 
   render() {
-
-    let { username, roomId } = this.state
-
     return (
       <Container style={styles.chatContainer}>
         <Container style={styles.chatThread}>
@@ -164,28 +119,31 @@ class LoginPage extends Component {
             <Row style={styles.headerText}>Join Chat Room</Row>
           </Container>
 
-          <Container style={styles.messageInputSection}>
+          <Container style={styles.InputSection}>
             <TextField
-              style={styles.messageTextField}
+              style={styles.TextField}
               id="input-username"
               label="Username"
               variant="outlined"
-              value={this.state.username}
+              value={this.state.inputUsername}
+              onChange={(event) => this.setUsername(event.target.value)}
             />
           </Container>
-          <Container style={styles.messageInputSection}>
+          <Container style={styles.InputSection}>
             <TextField
-              style={styles.messageTextField}
+              style={styles.TextField}
               id="input-roomid"
               label="RoomId"
               variant="outlined"
               pattern="[0-9]*"
-              value={this.state.roomId}
+              value={this.state.inputRoomId}
+              onChange={(event) => this.setRoom(event.target.value)}
             />
           </Container>
-
-          <Button style={styles.joinButton} variant="contained">
-            JOIN
+          
+          {this.renderRedirect()}
+          <Button style={styles.joinButton} variant="contained" onClick={() => this.enterRoom()}>
+              JOIN
           </Button>
         </Container>
       </Container>
