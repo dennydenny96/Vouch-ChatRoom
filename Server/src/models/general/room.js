@@ -4,7 +4,7 @@ const roomCollectionName = 'room';
 
 const roomSchema = new mongoose.Schema(
   {
-    roomId: { type: Number, required: true, unique: true }
+    roomId: { type: String, required: true, unique: true }
   },
   { timestamps: true }
 );
