@@ -10,30 +10,27 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import { render } from 'react-dom';
+import React from 'react';
 
-function App() {
+const App =  () => {
   return (
     <Router>
       <div className="App" style={{ justifyContent: 'center', display: 'flex' }}>
 
         <Switch>
-
-          <Route exact path="/testing">
-            <MyTesting />
+          <Route path="/" exact component={LoginPage}>
           </Route>
 
-          <Route exact path="/">
-            <LoginPage />
+          <Route path="/chatRoom" component={ChatRoom}>
           </Route>
 
-          <Route exact path="/chatRoom">
+          {/* <Route path="/chatRoom">
             <ChatRoom />
-          </Route>
-
+          </Route> */}
+{/* 
           <Route exact path="/clearChat">
             <ClearChat />
-          </Route>
+          </Route> */}
 
 
         </Switch>

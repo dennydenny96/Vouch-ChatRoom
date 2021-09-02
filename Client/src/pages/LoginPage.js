@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,6 +9,8 @@ import { Row, Container } from 'react-bootstrap';
 //Add socket import here
 import { socket } from '../services/socket'
 import { Redirect, Link } from 'react-router-dom';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 let styles = {
   chatContainer: {
@@ -61,94 +63,79 @@ let styles = {
     width: '45%',
     borderRadius: '100px'
   },
+  LinkJoin: {
+    textAlign: 'justify'
+  },
   TextField: {
     flex: 1
   }
 }
 
-class LoginPage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: "",
-      currentUserID: 0,
-      roomId: "",
-      initialLoad: true,
-      redirect: null
-    };
-    //Create Ref for managing "auto-scroll"
-    this.messagesEndRef = React.createRef()
-  }
+const LoginPage = () => {
 
-  componentDidMount() {
+  const MySwal = withReactContent(Swal);
+  const [name, setName] = useState('');
+  const [room, setRoom] = useState('');
+  const [redirect, setRedirect] = useState(``);
 
-  }
-
-  componentWillUnmount() {
-    socket.off("RetrieveChatRoomData")
-    socket.off("SetUserData")
-  }
-
-  setUsername(username) {
-    this.setState({ username: username })
-  }
-
-  setRoom(roomId) {
-    this.setState({ roomId: roomId })
-  }
-
-  renderRedirect = () => {
-    if (this.state.redirect) {
-      return <Redirect to={this.state.redirect} />
+  const redirectLink = () => {
+    console.log(redirect)
+    if (redirect) {
+      return <Redirect to={redirect} />
     }
   }
 
-  enterRoom() {
-    socket.emit("UserEnteredRoom", this.state)
-    socket.on("Authorized", (data) => {
-      console.log(data)
-      this.setState({ redirect: '/chatRoom' })
-    })
+  const joinRoom = () => {
+    socket.emit('welcome', { name, room }, (error) => {
+      setRedirect(``)
+      if (error) {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: error
+        })
+
+      } else {
+        setRedirect(`/chatRoom?name=${name}&room=${room}`)
+      }
+    });
   }
 
-  render() {
-    return (
-      <Container style={styles.chatContainer}>
-        <Container style={styles.chatThread}>
-          <Container style={styles.header}>
-            <Row style={styles.headerText}>Join Chat Room</Row>
-          </Container>
-
-          <Container style={styles.InputSection}>
-            <TextField
-              style={styles.TextField}
-              id="input-username"
-              label="Username"
-              variant="outlined"
-              value={this.state.inputUsername}
-              onChange={(event) => this.setUsername(event.target.value)}
-            />
-          </Container>
-          <Container style={styles.InputSection}>
-            <TextField
-              style={styles.TextField}
-              id="input-roomid"
-              label="RoomId"
-              variant="outlined"
-              pattern="[0-9]*"
-              value={this.state.inputRoomId}
-              onChange={(event) => this.setRoom(event.target.value)}
-            />
-          </Container>
-          
-          {this.renderRedirect()}
-          <Button style={styles.joinButton} variant="contained" onClick={() => this.enterRoom()}>
-              JOIN
-          </Button>
+  return (
+    <Container style={styles.chatContainer}>
+      <Container style={styles.chatThread}>
+        <Container style={styles.header}>
+          <Row style={styles.headerText}>Join Chat Room</Row>
         </Container>
+
+        <Container style={styles.InputSection}>
+          <TextField
+            style={styles.TextField}
+            id="input-username"
+            label="Username"
+            variant="outlined"
+            onChange={(event) => setName(event.target.value)}
+          />
+        </Container>
+        <Container style={styles.InputSection}>
+          <TextField
+            style={styles.TextField}
+            id="input-roomid"
+            label="RoomId"
+            variant="outlined"
+            pattern="[0-9]*"
+            onChange={(event) => setRoom(event.target.value)}
+          />
+        </Container>
+        {/* <Link style={styles.LinkJoin} onClick={e => (!name || !room) ? e.preventDefault() : null} to={`/chatRoom?name=${name}&room=${room}`}> */}
+        {redirectLink()}
+        <Button style={styles.joinButton} onClick={() => joinRoom()} variant="contained">
+          JOIN
+        </Button>
+        {/* </Link> */}
       </Container>
-    );
-  }
+    </Container>
+  );
 }
 
 export default LoginPage;
