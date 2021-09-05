@@ -13,7 +13,7 @@ import ChatNotification from '../components/ChatNotification'
 import ChatNotificationAdmin from '../components/ChatNotificationAdmin'
 
 import config from '../config/index';
-import 'dotenv';
+
 //Add socket import here
 import { socket } from '../services/socket'
 
