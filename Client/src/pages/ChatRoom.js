@@ -20,6 +20,7 @@ import { socket } from '../services/socket'
 let styles = {
 	chatRoomContainer: {
 		marginTop: 10,
+		minWidth: '375px'
 	},
 	header: {
 		height: "10vh",
@@ -48,12 +49,11 @@ let styles = {
 		flex: 0,
 		display: 'flex',
 		flexDirection: 'column',
-		height: "75vh",
+		height: "73vh",
 		overflowY: 'auto',
-		width: '45vw',
 		alignSelf: 'center',
 		padding: 20,
-		paddingBottom: 40,
+		paddingBottom: 10,
 		border: '1px solid rgba(0, 0, 0, 0.2)',
 		borderBottomLeftRadius: 8,
 		borderBottomRightRadius: 8,

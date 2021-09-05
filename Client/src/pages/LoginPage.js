@@ -11,7 +11,8 @@ import withReactContent from 'sweetalert2-react-content'
 
 let styles = {
   chatContainer: {
-    marginTop: 10
+    marginTop: 10,
+    minWidth: '375px'
   },
   header: {
     height: "7vh",
@@ -29,15 +30,15 @@ let styles = {
     marginRight: 3,
   },
   chatThread: {
+    backgroundColor: 'rgba(227, 227, 227, 0.2)',
     flex: 0,
     display: 'flex',
     flexDirection: 'column',
     height: "90vh",
     overflowY: 'auto',
-    width: '45vw',
     alignSelf: 'center',
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
     border: '1px solid rgba(0, 0, 0, 0.2)',
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
@@ -55,10 +56,14 @@ let styles = {
   joinButton: {
     backgroundColor: '#5DB075',
     color: '#FFFFFF',
-    position: 'absolute',
-    bottom: '3%',
-    width: '45%',
-    borderRadius: '100px'
+    borderRadius: '100px',
+    width: '100%',
+  },
+  containerThread: {
+    height: '70vh'
+  },
+  containerJoin: {
+    bottom: '5vh'
   },
   LinkJoin: {
     textAlign: 'justify'
@@ -124,12 +129,19 @@ const LoginPage = () => {
             onChange={(event) => setRoom(event.target.value)}
           />
         </Container>
-        {/* <Link style={styles.LinkJoin} onClick={e => (!name || !room) ? e.preventDefault() : null} to={`/chatRoom?name=${name}&room=${room}`}> */}
-        {redirectLink()}
-        <Button style={styles.joinButton} onClick={() => joinRoom()} variant="contained">
-          JOIN
-        </Button>
-        {/* </Link> */}
+        <Container style={styles.containerThread}>
+
+        </Container>
+        <Container style={styles.containerJoin}>
+          <Row>
+            {/* <Link style={styles.LinkJoin} onClick={e => (!name || !room) ? e.preventDefault() : null} to={`/chatRoom?name=${name}&room=${room}`}> */}
+            {redirectLink()}
+            <Button style={styles.joinButton} onClick={() => joinRoom()} variant="contained">
+              JOIN
+            </Button>
+            {/* </Link> */}
+          </Row>
+        </Container>
       </Container>
     </Container>
   );
