@@ -15,18 +15,22 @@ export default async ({ io }) => {
 
     //Client in Chat Room
     client.on('join', async ({ name, room, roomId }, callback) => {
+      name = name.trim().toLowerCase();
+      room = room.trim().toLowerCase();
       io.to(room).emit('roomData', {
         room: room,
         users: await chatRoomService.getUsersInRoom(room),
         messages: await chatRoomService.getMessagesInRoom(roomId)
       });
       client.broadcast.to(room).emit('message', { name: 'admin', text: `${name} has joined!` });
-      
+
       callback();
     });
 
     //Client send message to in Chat Room
     client.on('sendMessage', ({ name, text, room, roomObjId }, callback) => {
+      name = name.trim().toLowerCase();
+      room = room.trim().toLowerCase();
       chatRoomService.sendMessageInRoom({ name, text, roomObjId })
       io.to(room).emit('message', { name, text });
       callback();
