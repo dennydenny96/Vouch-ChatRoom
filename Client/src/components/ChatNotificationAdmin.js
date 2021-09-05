@@ -10,26 +10,31 @@ let styles = {
 	},
 	textBubble: {
 		padding: 10,
+		backgroundColor: '#00FFA2',
 		justifyContent: 'center',
 		flex: 0,
 		display: 'flex',
 		borderRadius: 8,
 		fontSize: 14,
-		color: 'rgba(0, 0, 0, 0.50)'
+		color: 'black'
 	},
 	usernameText: {
 		fontSize: 9
 	}
 }
 
-const ChatNotification = (props) => {
+const ChatNotificationAdmin = (props) => {
 	const {
+		username,
 		text
 	} = props
 
 	return (
 		<Row style={styles.currentUserTextContainer}>
 			<Container>
+				<Row style={styles.usernameText}>
+					{username.toUpperCase()}
+				</Row>
 				<Row style={styles.textBubble}>
 					{text}
 				</Row>
@@ -38,4 +43,4 @@ const ChatNotification = (props) => {
 	);
 }
 
-export default ChatNotification;
+export default ChatNotificationAdmin;

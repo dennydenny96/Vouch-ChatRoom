@@ -11,7 +11,6 @@ const publicPath = ['/', '/auth/login', '/status'];
 const { UserType } = userConstant;
 
 const login = async ({ username, roomId }) => {
-  console.log(username, roomId, '=====================')
   const user = await userService.findUserByUsername(username);
   if (!user) throw new UnauthorizedError(message.WRONG_USERNAME);
   

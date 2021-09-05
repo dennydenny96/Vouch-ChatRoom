@@ -1,22 +1,19 @@
 import './App.css';
 import LoginPage from './pages/LoginPage'
 import ChatRoom from './pages/ChatRoom'
-import ClearChat from './pages/ClearChat'
-import MyTesting from './pages/testingPage';
+// import AddUser from './pages/AddUser'
 
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Redirect
+  Route
 } from "react-router-dom";
 import React from 'react';
 
-const App =  () => {
+const App = () => {
   return (
     <Router>
       <div className="App" style={{ justifyContent: 'center', display: 'flex' }}>
-
         <Switch>
           <Route path="/" exact component={LoginPage}>
           </Route>
@@ -24,14 +21,8 @@ const App =  () => {
           <Route path="/chatRoom" component={ChatRoom}>
           </Route>
 
-          {/* <Route path="/chatRoom">
-            <ChatRoom />
+          {/* <Route path="/addUser" component={AddUser}>
           </Route> */}
-{/* 
-          <Route exact path="/clearChat">
-            <ClearChat />
-          </Route> */}
-
 
         </Switch>
 

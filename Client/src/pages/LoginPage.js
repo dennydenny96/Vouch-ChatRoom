@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import IconButton from '@material-ui/core/IconButton';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import SendIcon from '@material-ui/icons/Send';
 import { Row, Container } from 'react-bootstrap';
 
 //Add socket import here
 import { socket } from '../services/socket'
-import { Redirect, Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
@@ -72,30 +69,30 @@ let styles = {
 }
 
 const LoginPage = () => {
-
+  socket.connect();
   const MySwal = withReactContent(Swal);
   const [name, setName] = useState('');
   const [room, setRoom] = useState('');
   const [redirect, setRedirect] = useState(``);
 
   const redirectLink = () => {
-    console.log(redirect)
     if (redirect) {
       return <Redirect to={redirect} />
     }
   }
 
   const joinRoom = () => {
-    socket.emit('welcome', { name, room }, (error) => {
+    socket.emit('welcome', { name, room }, (response) => {
       setRedirect(``)
-      if (error) {
+      if (response.error) {
         MySwal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: error
+          text: response.error
         })
 
       } else {
+        localStorage.setItem('roomId', response.roomId);
         setRedirect(`/chatRoom?name=${name}&room=${room}`)
       }
     });
