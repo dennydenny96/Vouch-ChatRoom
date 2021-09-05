@@ -53,7 +53,7 @@ let styles = {
 		overflowY: 'auto',
 		alignSelf: 'center',
 		padding: 20,
-		paddingBottom: 40,
+		paddingBottom: 10,
 		border: '1px solid rgba(0, 0, 0, 0.2)',
 		borderBottomLeftRadius: 8,
 		borderBottomRightRadius: 8,
