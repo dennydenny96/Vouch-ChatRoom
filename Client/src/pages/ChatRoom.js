@@ -1,15 +1,16 @@
-import React, { useEffect, useState, Component, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import queryString from 'qs';
-import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import SendIcon from '@material-ui/icons/Send';
 import { Row, Container } from 'react-bootstrap';
 
+import { Link } from 'react-router-dom';
 import CurrentUserText from '../components/CurrentUserText'
 import OtherUserText from '../components/OtherUserText'
 import ChatNotification from '../components/ChatNotification'
+import ChatNotificationAdmin from '../components/ChatNotificationAdmin'
 
 import config from '../config/index';
 import 'dotenv';
@@ -21,9 +22,8 @@ let styles = {
 		marginTop: 10,
 	},
 	header: {
-		height: "7vh",
-		backgroundColor: 'rgba(0, 0, 0, 0.25)',
-		alignItems: 'center',
+		height: "10vh",
+		backgroundColor: '#5DB075',
 		justifyContent: 'center',
 		display: 'flex',
 		borderTopLeftRadius: 8,
@@ -36,7 +36,6 @@ let styles = {
 	youAppearAsText: {
 		fontSize: 14,
 		marginTop: 5,
-		display: 'flex',
 		flexDirection: 'row',
 	},
 	usernameText: {
@@ -69,26 +68,56 @@ let styles = {
 	},
 	messageSubmitButton: {
 		flex: 0
+	},
+	exitRow: {
+		flex: 0,
+		justifyContent: 'flex-start',
+		display: 'flex',
+		position: 'absolute',
+		margin: '3vh'
+	},
+	exitLink: {
+		color: "red"
 	}
-
 }
+
 const ENDPOINT = config.server_node.url;
+
 const ChatRoom = () => {
 	const autoScrollOffset = 100 //offset value that allows screen to auto scroll when you are not exactly at bottom of chat window
 	const [name, setName] = useState('');
 	const [room, setRoom] = useState('');
+	const [roomObjId, setRoomObjId] = useState(localStorage.getItem('roomId'));
 	const [users, setUsers] = useState('');
-	const [message, setMessage] = useState('');
+	const [text, setText] = useState('');
 	const [messages, setMessages] = useState([]);
 	const [initialLoad, setInitialLoad] = useState(true);
 	const messagesEndRef = useRef(null);
 
+	const [state, setState] = useState("loading (4 sec)...");
+	useEffect(() => {
+		let isMounted = true;
+		// simulate some Web API fetching
+		const fetchData = () => {
+			setTimeout(() => {
+				if (isMounted) setState("data fetched")
+			}, 4000);
+		}
+
+		fetchData();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
 	useEffect(() => {
 		const { name, room } = queryString.parse(window.location.search.replace("?", ""));
+		const roomId = localStorage.getItem('roomId');
 		setRoom(room);
 		setName(name);
-		socket.emit('join', { name, room }, () => {
-			
+
+		socket.emit('join', { name, room, roomId }, () => {
+
 		});
 	}, [ENDPOINT, window.location.search.replace("?", "")])
 
@@ -98,27 +127,36 @@ const ChatRoom = () => {
 			shouldScrollToBottom();
 		})
 
-		socket.on("roomData", ({ users }) => {
+		socket.on("roomData", ({ users, messages }) => {
+			if (messages) setMessages(messages.messages)
 			setUsers(users);
+			localStorage.removeItem('roomId');
+			shouldScrollToBottom();
 		});
 	}, []);
 
 	const sendMessage = (event) => {
-		if (message) {
-			socket.emit('sendMessage', message, () => setMessage(''));
+		if (text) {
+			socket.emit('sendMessage', { text, name, room, roomObjId }, () => setText(''));
 		}
 	}
 
-	const shouldScrollToBottom = () => {
-		//If user is near the bottom of the chat, automatically navigate them to bottom when new chat message/notification appears
-		if (messagesEndRef.current.scrollHeight - messagesEndRef.current.scrollTop < messagesEndRef.current.offsetHeight + autoScrollOffset) {
-			scrollToBottom()
-		}
+	const disconnect = () => {
+		socket.disconnect();
+	}
 
-		//Navigate to end of chat when entering chat the first time
-		if (initialLoad) {
-			scrollToBottom()
-			setInitialLoad(false);
+	const shouldScrollToBottom = () => {
+		if (messagesEndRef.current !== null) {
+			//If user is near the bottom of the chat, automatically navigate them to bottom when new chat message/notification appears
+			if (messagesEndRef.current.scrollHeight - messagesEndRef.current.scrollTop < messagesEndRef.current.offsetHeight + autoScrollOffset) {
+				scrollToBottom()
+			}
+
+			//Navigate to end of chat when entering chat the first time
+			if (initialLoad) {
+				scrollToBottom()
+				setInitialLoad(false);
+			}
 		}
 	}
 
@@ -129,8 +167,12 @@ const ChatRoom = () => {
 
 	return (
 		<Container style={styles.chatRoomContainer}>
-
 			<Container style={styles.header}>
+				<Row style={styles.exitRow}>
+					<Link style={styles.exitLink} onClick={() => disconnect()} to={`/`}>
+						Exit
+					</Link>
+				</Row>
 				<Row style={styles.headerText}>Chat Room</Row>
 				<Row style={styles.youAppearAsText}>
 					<div style={styles.usernameText}> {room}</div>
@@ -141,12 +183,15 @@ const ChatRoom = () => {
 			<Container style={styles.chatThread} ref={messagesEndRef}>
 				{
 					messages.map((messageData, index) => {
-						if (messageData.user == name) {
-							return <CurrentUserText key={index} username={messageData.user} message={messageData.text} />
-						} else if (messageData.user == '') {
-							return <ChatNotification key={index} username={messageData.user} message={messageData.text} />
+						if (messageData.name === name) {
+							return <CurrentUserText key={index} username={messageData.name} text={messageData.text} />
+						} else if (messageData.name.toLowerCase() === 'admin') {
+							return <ChatNotificationAdmin key={index} username={messageData.name} text={messageData.text} />
+						}
+						else if (messageData.name === '') {
+							return <ChatNotification key={index} username={messageData.name} text={messageData.text} />
 						} else {
-							return <OtherUserText key={index} username={messageData.user} message={messageData.text} />
+							return <OtherUserText key={index} username={messageData.name} text={messageData.text} />
 						}
 					})
 				}
@@ -158,8 +203,8 @@ const ChatRoom = () => {
 					id="input-with-icon-adornment"
 					label="Enter Message"
 					variant="outlined"
-					value={message}
-					onChange={(event) => setMessage(event.target.value)}
+					value={text}
+					onChange={(event) => setText(event.target.value)}
 					onKeyPress={(event) => {
 						if (event.key === 'Enter') {
 							sendMessage();

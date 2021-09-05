@@ -16,6 +16,7 @@ const startServer = async () => {
   const server = createServer(app);
   const options = {};
   const io = new Server(server, options)
+  
   await socketServer({ io: io });
   console.log('Socket Initialized');
 
