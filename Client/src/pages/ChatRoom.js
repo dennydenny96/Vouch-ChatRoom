@@ -183,7 +183,7 @@ const ChatRoom = () => {
 			<Container style={styles.chatThread} ref={messagesEndRef}>
 				{
 					messages.map((messageData, index) => {
-						if (messageData.name === name) {
+						if (messageData.name === name.toLowerCase()) {
 							return <CurrentUserText key={index} username={messageData.name} text={messageData.text} />
 						} else if (messageData.name.toLowerCase() === 'admin') {
 							return <ChatNotificationAdmin key={index} username={messageData.name} text={messageData.text} />
